@@ -1,0 +1,38 @@
+#!/bin/bash
+
+: ${ACCOUNTID?"Need to set ACCOUNTID"}
+: ${ACCESSID?"Need to set ACCESSID"}
+: ${SECRETKEY?"Need to set SECRETKEY"}
+
+mkdir -p /root/.asgard
+
+cat << 'EOF' > /root/.asgard/Config.groovy
+grails {
+  awsAccounts=['$ACCOUNTID']
+    awsAccountNames=['$ACCOUNTID':'prod']
+    }
+    secret {
+      accessId='$ACCESSID'
+        secretKey='$SECRETKEY'
+}
+cloud {
+  accountName='prod'
+    publicResourceAccounts=['amazon']
+    }
+EOF
+
+export JAVA_OPTS=" \
+      -verbose:sizes \
+      -Xmx2g -Xms2g \
+      -Xmn1g \
+      -XX:MaxPermSize=256m \
+      -XX:+HeapDumpOnOutOfMemoryError \
+      -XX:-UseGCOverheadLimit \
+      -XX:+ExplicitGCInvokesConcurrent \
+      -XX:+PrintGCDateStamps -XX:+PrintGCDetails \
+      -XX:+PrintTenuringDistribution \
+      -XX:+CMSClassUnloadingEnabled \
+      -XX:+UseConcMarkSweepGC \
+"
+
+java -jar /opt/asgard/asgard-standalone.jar
